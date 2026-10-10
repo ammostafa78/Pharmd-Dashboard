@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PharmD Program · KPI Executive Dashboard · College of Pharmacy, IAU</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<style>
+/* ── RESET & BASE ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:       #0f1f3d;
+  --navy2:      #1a2f55;
+  --navy3:      #243a6a;
+  --gold:       #c9a84c;
+  --gold-lt:    #e8d5a3;
+  --cream:      #f8f5ef;
+  --white:      #ffffff;
+  --slate:      #64748b;
+  --slate-lt:   #94a3b8;
+  --border:     #e2e8f0;
+  --border-dk:  #cbd5e1;
+
+  --green:      #166534;
+  --green-bg:   #dcfce7;
+  --green-mid:  #22c55e;
+  --amber:      #92400e;
+  --amber-bg:   #fef3c7;
+  --amber-mid:  #f59e0b;
+  --red:        #991b1b;
+  --red-bg:     #fee2e2;
+  --red-mid:    #ef4444;
+  --blue:       #1e40af;
+  --blue-bg:    #dbeafe;
+  --blue-mid:   #3b82f6;
+
+  --male-col:   #2563eb;
+  --female-col: #db2777;
+  --combined-col:#0f766e;
+
+  --sidebar-w:  240px;
+  --hdr-h:      64px;
+  --radius:     10px;
+  --radius-lg:  14px;
+  --shadow:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:  0 4px 12px rgba(0,0,0,.1), 0 2px 4px rgba(0,0,0,.06);
+  --transition: .18s ease;
+
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: #1e293b;
+  background: var(--cream);
+  line-height: 1.5;
+}
+
+/* ── LAYOUT ───────────────────────────────────────────── */
+body { display: flex; min-height: 100vh; overflow-x: hidden; }
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--navy);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  z-index: 100;
+  transition: transform var(--transition);
+}
+.sidebar-logo {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.sidebar-logo .logo-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px;
+  color: #fff;
+  line-height: 1.2;
+}
+.sidebar-logo .logo-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,.45);
+  margin-top: 3px;
+  letter-spacing: .4px;
+}
+.sidebar-logo .logo-badges {
+  display: flex; gap: 6px; margin-top: 10px;
+}
+.sbadge {
+  font-size: 10px; font-weight: 600; padding: 2px 8px;
+  border-radius: 20px; letter-spacing: .5px;
+}
+.sbadge-teal { background: #134e4a; color: #5eead4; }
+.sbadge-blue { background: #1e3a8a; color: #93c5fd; }
+
+.sidebar-nav { flex: 1; padding: 16px 10px; overflow-y: auto; }
+.nav-section-label {
+  font-size: 10px; font-weight: 600; color: rgba(255,255,255,.3);
+  letter-spacing: 1.2px; text-transform: uppercase;
+  padding: 0 10px; margin: 14px 0 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: var(--radius);
+  cursor: pointer; transition: var(--transition);
+  color: rgba(255,255,255,.6); font-size: 13px; font-weight: 400;
+  margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: rgba(255,255,255,.08); color: rgba(255,255,255,.9); }
+.nav-item.active { background: rgba(201,168,76,.18); color: var(--gold); font-weight: 500; }
+.nav-item .nav-icon { font-size: 15px; width: 20px; text-align: center; }
+.nav-item .nav-badge {
+  margin-left: auto; font-size: 10px; font-weight: 600;
+  padding: 1px 6px; border-radius: 10px;
+  background: rgba(239,68,68,.25); color: #fca5a5;
+}
+
+.sidebar-year {
+  padding: 14px 10px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.sidebar-year label {
+  font-size: 10px; font-weight: 600; color: rgba(255,255,255,.3);
+  letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px; padding: 0 4px;
+}
+.year-pills { display: flex; gap: 4px; }
+.ypill {
+  flex: 1; text-align: center; padding: 7px 4px; border-radius: var(--radius);
+  font-size: 12px; font-weight: 500; cursor: pointer; border: none;
+  background: rgba(255,255,255,.07); color: rgba(255,255,255,.5);
+  transition: var(--transition);
+}
+.ypill.active { background: var(--gold); color: var(--navy); }
+
+/* MAIN */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1; display: flex; flex-direction: column;
+  min-height: 100vh;
+}
+.content { padding: 24px 28px; flex: 1; }
+.topbar {
+  height: var(--hdr-h); background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 28px; position: sticky; top: 0; z-index: 50;
+}
+.topbar-title { font-size: 15px; font-weight: 600; color: var(--navy); }
+.topbar-year-chip {
+  font-size: 11px; padding: 3px 10px; border-radius: 20px;
+  background: var(--blue-bg); color: var(--blue); font-weight: 600;
+}
+.topbar-spacer { flex: 1; }
+.search-wrap {
+  position: relative; display: flex; align-items: center;
+}
+.search-wrap input {
+  padding: 7px 12px 7px 34px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 13px; width: 220px;
+  background: var(--cream); color: #1e293b; outline: none;
+  transition: var(--transition); font-family: inherit;
+}
+.search-wrap input:focus { border-color: var(--navy3); background: #fff; box-shadow: 0 0 0 3px rgba(15,31,61,.08); }
+.search-icon { position: absolute; left: 10px; color: var(--slate-lt); font-size: 14px; }
+.gender-tabs { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.gtab {
+  padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: pointer;
+  background: var(--white); color: var(--slate); border: none;
+  border-right: 1px solid var(--border); transition: var(--transition);
+  font-family: inherit;
+}
+.gtab:last-child { border-right: none; }
+.gtab.active.all  { background: var(--combined-col); color: #fff; }
+.gtab.active.male { background: var(--male-col); color: #fff; }
+.gtab.active.fem  { background: var(--female-col); color: #fff; }
+.gtab:not(.active):hover { background: var(--cream); }
+
+.export-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--white); color: var(--slate); font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: var(--transition); font-family: inherit;
+}
+.export-btn:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+/* CONTENT */
+.content { padding: 24px 28px; flex: 1; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* SUMMARY STRIP */
+.sum-strip {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 14px; margin-bottom: 22px;
+}
+.scard {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 16px 18px; box-shadow: var(--shadow);
+  border-top: 3px solid; position: relative; overflow: hidden;
+}
+.scard::after {
+  content: attr(data-icon);
+  position: absolute; right: 14px; top: 14px;
+  font-size: 22px; opacity: .12;
+}
+.scard-lbl { font-size: 11px; font-weight: 600; color: var(--slate); letter-spacing: .5px; text-transform: uppercase; margin-bottom: 4px; }
+.scard-val { font-size: 32px; font-weight: 300; line-height: 1; margin-bottom: 4px; }
+.scard-sub { font-size: 12px; color: var(--slate); }
+
+/* KPI OVERVIEW GRID */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+}
+.kpi-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  border: 1px solid var(--border); padding: 16px;
+  cursor: pointer; transition: var(--transition);
+  border-top: 3px solid; box-shadow: var(--shadow);
+  position: relative;
+}
+.kpi-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.kc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.kc-code { font-size: 11px; font-weight: 700; color: var(--slate); letter-spacing: .5px; }
+.kc-avail { font-size: 10px; padding: 1px 6px; border-radius: 8px; background: var(--cream); color: var(--slate); border: 1px solid var(--border); }
+.kc-name { font-size: 12px; color: #334155; line-height: 1.45; margin-bottom: 12px; min-height: 36px; }
+.kc-vals { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-end; }
+.kc-main-val { font-size: 26px; font-weight: 300; line-height: 1; }
+.kc-target-lbl { font-size: 11px; color: var(--slate); }
+.kc-target-val { font-size: 13px; font-weight: 600; color: var(--slate); }
+.kc-gender-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.kc-g { font-size: 11px; padding: 2px 7px; border-radius: 6px; font-weight: 500; }
+.kc-g-m { background: #dbeafe; color: #1e40af; }
+.kc-g-f { background: #fce7f3; color: #9d174d; }
+.kc-bottom { display: flex; justify-content: space-between; align-items: center; }
+.kc-pill { font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; letter-spacing: .3px; }
+.kc-delta { font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 3px; }
+
+/* STATUS COLORS */
+.s-achieved   { border-color: var(--green-mid); }
+.s-borderline { border-color: var(--amber-mid); }
+.s-not        { border-color: var(--red-mid); }
+.s-nd         { border-color: var(--border-dk); }
+.p-achieved   { background: var(--green-bg); color: var(--green); }
+.p-borderline { background: var(--amber-bg); color: var(--amber); }
+.p-not        { background: var(--red-bg); color: var(--red); }
+.p-nd         { background: #f1f5f9; color: var(--slate); }
+.v-achieved   { color: var(--green); }
+.v-borderline { color: var(--amber); }
+.v-not        { color: var(--red); }
+.v-nd         { color: var(--slate); }
+.d-up-good    { color: var(--green); }
+.d-down-bad   { color: var(--red); }
+.d-flat       { color: var(--slate); }
+
+/* DETAIL PAGE */
+.detail-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--slate); cursor: pointer;
+  padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--white); margin-bottom: 18px; transition: var(--transition);
+  font-weight: 500;
+}
+.detail-back:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+.detail-head {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 20px 24px; margin-bottom: 18px;
+  box-shadow: var(--shadow); border-left: 4px solid;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+}
+.dh-name { font-size: 17px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+.dh-code { font-size: 12px; color: var(--slate); }
+.dh-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.status-pill { font-size: 12px; font-weight: 700; padding: 5px 14px; border-radius: 20px; letter-spacing: .3px; white-space: nowrap; }
+.avail-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.avail-chip { font-size: 11px; padding: 2px 8px; border-radius: 8px; font-weight: 500; display: flex; align-items: center; gap: 4px; }
+.av-ok  { background: var(--green-bg); color: var(--green); }
+.av-no  { background: #f1f5f9; color: var(--slate-lt); }
+
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.detail-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.full { grid-column: span 2; }
+.full3 { grid-column: span 3; }
+
+.card {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 18px 20px; box-shadow: var(--shadow); border: 1px solid var(--border);
+}
+.card-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.card-title { font-size: 11px; font-weight: 700; color: var(--slate); text-transform: uppercase; letter-spacing: .7px; }
+.chart-wrap { position: relative; }
+
+/* GAUGE */
+.gauge-outer { display: flex; flex-direction: column; align-items: center; }
+.gauge-svg-wrap { position: relative; width: 200px; height: 110px; }
+.gauge-readout { text-align: center; margin-top: 6px; }
+.gauge-val { font-size: 28px; font-weight: 300; line-height: 1; }
+.gauge-sub { font-size: 12px; color: var(--slate); margin-top: 2px; }
+.gauge-stats { display: flex; gap: 24px; justify-content: center; margin-top: 12px; }
+.gs { text-align: center; }
+.gs-lbl { font-size: 10px; color: var(--slate-lt); text-transform: uppercase; letter-spacing: .5px; }
+.gs-val { font-size: 14px; font-weight: 700; margin-top: 1px; }
+.delta-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 700; padding: 4px 10px;
+  border-radius: 20px; margin-top: 8px;
+}
+.db-up-good  { background: var(--green-bg); color: var(--green); }
+.db-down-bad { background: var(--red-bg); color: var(--red); }
+.db-up-bad   { background: var(--red-bg); color: var(--red); }
+.db-down-good{ background: var(--green-bg); color: var(--green); }
+.db-flat     { background: #f1f5f9; color: var(--slate); }
+
+/* GENDER COMPARISON CHART */
+.gender-comp-wrap { position: relative; }
+
+/* INSIGHT */
+.insight-item {
+  padding: 10px 14px; border-radius: 8px; margin-bottom: 8px;
+  font-size: 13px; line-height: 1.6; border-left: 3px solid;
+}
+.ins-positive { background: var(--green-bg); border-color: var(--green-mid); color: var(--green); }
+.ins-warning  { background: var(--amber-bg); border-color: var(--amber-mid); color: var(--amber); }
+.ins-negative { background: var(--red-bg); border-color: var(--red-mid); color: var(--red); }
+.ins-info     { background: var(--blue-bg); border-color: var(--blue-mid); color: var(--blue); }
+.ins-neutral  { background: var(--cream); border-color: var(--border-dk); color: var(--slate); }
+
+/* LEGEND */
+.leg-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--slate); }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* STRATEGY PAGE */
+.strat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.radar-wrap { position: relative; height: 320px; }
+.domain-cards { display: flex; flex-direction: column; gap: 10px; }
+.dom-card {
+  background: var(--white); border-radius: var(--radius);
+  padding: 12px 14px; border: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+  transition: var(--transition);
+}
+.dom-card:hover { box-shadow: var(--shadow-md); }
+.dom-icon { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.dom-info { flex: 1; min-width: 0; }
+.dom-name { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 2px; }
+.dom-counts { font-size: 11px; color: var(--slate); }
+.dom-pct { font-size: 18px; font-weight: 300; white-space: nowrap; }
+.dom-bar-wrap { width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+.dom-bar { height: 100%; border-radius: 2px; transition: width .4s ease; }
+
+/* ATTENTION PAGE */
+.attn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.attn-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 16px 18px; box-shadow: var(--shadow);
+  border: 1px solid var(--border); border-left: 4px solid;
+  cursor: pointer; transition: var(--transition);
+}
+.attn-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.attn-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 8px; }
+.attn-name { font-size: 13px; font-weight: 600; color: var(--navy); line-height: 1.4; }
+.attn-code { font-size: 11px; color: var(--slate); margin-top: 2px; }
+.attn-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.am { background: var(--cream); border-radius: 8px; padding: 8px 10px; }
+.am-lbl { font-size: 10px; color: var(--slate-lt); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
+.am-val { font-size: 17px; font-weight: 500; }
+.attn-gap { font-size: 12px; padding: 6px 10px; border-radius: 8px; background: var(--cream); color: var(--slate); }
+.attn-footer { margin-top: 10px; font-size: 11px; color: var(--slate-lt); display: flex; align-items: center; gap: 4px; }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--slate); }
+.empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
+.empty-state h3 { font-size: 16px; color: var(--navy); margin-bottom: 6px; }
+
+/* PRINT */
+@media print {
+  .sidebar, .topbar, .detail-back, .export-btn, .search-wrap, .gender-tabs { display: none !important; }
+  .main { margin-left: 0; }
+  .page { display: block !important; break-inside: avoid; }
+  .card, .kpi-card, .attn-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+  body { background: white; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; border-top: 1px solid #ccc; background: white; }
+}
+
+/* TOOLTIP */
+.tooltip {
+  position: fixed; pointer-events: none;
+  background: var(--navy); color: #fff;
+  padding: 6px 10px; border-radius: 6px;
+  font-size: 11px; line-height: 1.5;
+  z-index: 9999; display: none;
+  max-width: 200px;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-dk); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- TOOLTIP -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-title">PharmD Program<br>KPI Dashboard</div>
+    <div class="logo-sub" style="margin-top:6px;line-height:1.5">College of Pharmacy<br>Imam Abdulrahman Bin<br>Faisal University</div>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);font-size:10px;color:rgba(255,255,255,.3);letter-spacing:.4px">Executive Performance Report</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Navigation</div>
+    <button class="nav-item active" onclick="showPage('overview',this)" data-page="overview">
+      <span class="nav-icon">⊞</span> KPI Overview
+    </button>
+    <button class="nav-item" onclick="showPage('detail',this)" data-page="detail">
+      <span class="nav-icon">◎</span> KPI Detail
+    </button>
+    <button class="nav-item" onclick="showPage('gender',this)" data-page="gender">
+      <span class="nav-icon">⇌</span> Gender Analysis
+    </button>
+    <button class="nav-item" onclick="showPage('strategy',this)" data-page="strategy">
+      <span class="nav-icon">◈</span> Strategic View
+    </button>
+    <button class="nav-item" onclick="showPage('attention',this)" data-page="attention">
+      <span class="nav-icon">⚑</span> Needs Attention
+      <span class="nav-badge" id="attnBadge">0</span>
+    </button>
+
+    <div class="nav-section-label" style="margin-top:20px">Quick KPI Jump</div>
+    <div id="sideKPIList" style="max-height:260px;overflow-y:auto;padding-right:4px"></div>
+  </nav>
+
+  <div class="sidebar-year">
+    <label>Academic Year</label>
+    <div class="year-pills" id="yearPills">
+      <!-- populated by buildYearPills() after RAW loads -->
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div style="display:flex;flex-direction:column;gap:1px">
+      <span class="topbar-title" id="topbarTitle">KPI Overview</span>
+      <span style="font-size:11px;color:var(--slate)">College of Pharmacy · Imam Abdulrahman Bin Faisal University</span>
+    </div>
+    <span class="topbar-year-chip" id="topbarYear">2025–2026</span>
+    <div class="topbar-spacer"></div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchBox" placeholder="Search KPIs…" oninput="renderOverview()">
+    </div>
+    <div class="gender-tabs">
+      <button class="gtab active all"  data-g="Combined" onclick="setGender(this)">Combined</button>
+      <button class="gtab male"        data-g="Male"     onclick="setGender(this)">Male</button>
+      <button class="gtab fem"         data-g="Female"   onclick="setGender(this)">Female</button>
+    </div>
+    <button class="export-btn" onclick="window.print()">⬇ Export PDF</button>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- SUMMARY STRIP (always visible) -->
+    <div class="sum-strip" id="sumStrip"></div>
+
+    <!-- PAGE: OVERVIEW -->
+    <div class="page active" id="pg-overview">
+      <div class="kpi-grid" id="kpiGrid"></div>
+    </div>
+
+    <!-- PAGE: DETAIL -->
+    <div class="page" id="pg-detail">
+      <button class="detail-back" onclick="showPage('overview', document.querySelector('[data-page=overview]'))">← Back to Overview</button>
+      <div style="margin-bottom:16px">
+        <label style="font-size:11px;font-weight:700;color:var(--slate);letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:6px">Select KPI</label>
+        <select id="kpiSel" onchange="selKPI=this.value;renderDetail()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--white);color:#1e293b;font-family:inherit;min-width:400px"></select>
+      </div>
+      <div id="detailHdr" class="detail-head"></div>
+      <div class="avail-row" id="availRow" style="margin-bottom:18px"></div>
+
+      <!-- Row 1: Gauge + Trend -->
+      <div class="detail-grid" style="margin-bottom:16px">
+        <div class="card" id="gaugeCard">
+          <div class="card-hdr">
+            <span class="card-title">Performance Gauge</span>
+            <span id="gaugeDelta"></span>
+          </div>
+          <div id="gaugeArea" class="gauge-outer"></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr">
+            <span class="card-title">Trend Over Time</span>
+          </div>
+          <div class="leg-row" id="trendLeg"></div>
+          <div class="chart-wrap" style="height:200px"><canvas id="trendC"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Row 2: Gender Comparison (full width) -->
+      <div class="card full" style="margin-bottom:16px" id="genderCompCard">
+        <div class="card-hdr">
+          <span class="card-title">Male vs. Female Performance Comparison</span>
+          <span id="genderAvailNote" style="font-size:11px;color:var(--slate-lt)"></span>
+        </div>
+        <div class="detail-grid" style="margin-bottom:0">
+          <div>
+            <div class="leg-row" id="genderBarLeg"></div>
+            <div class="chart-wrap" style="height:180px"><canvas id="genderBarC"></canvas></div>
+          </div>
+          <div>
+            <div class="leg-row">
+              <span class="leg"><span class="leg-dot" style="background:var(--male-col)"></span>Male trend</span>
+              <span class="leg"><span class="leg-dot" style="background:var(--female-col)"></span>Female trend</span>
+              <span class="leg"><span class="leg-dot" style="background:var(--combined-col);opacity:.6"></span>Combined</span>
+            </div>
+            <div class="chart-wrap" style="height:180px"><canvas id="genderTrendC"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Benchmark -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-hdr"><span class="card-title">Benchmark Comparison</span></div>
+        <div class="leg-row" id="benchLeg"></div>
+        <div class="chart-wrap" style="height:170px"><canvas id="benchC"></canvas></div>
+      </div>
+
+      <!-- Row 4: Insights -->
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">Leadership Insights</span></div>
+        <div id="insightBox"></div>
+      </div>
+    </div>
+
+    <!-- PAGE: GENDER ANALYSIS -->
+    <div class="page" id="pg-gender">
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-hdr">
+          <span class="card-title">Male vs. Female — All KPIs Side-by-Side</span>
+          <span style="font-size:11px;color:var(--slate)">Only KPIs with gender-disaggregated data shown</span>
+        </div>
+        <div class="leg-row">
+          <span class="leg"><span class="leg-dot" style="background:var(--male-col)"></span>Male</span>
+          <span class="leg"><span class="leg-dot" style="background:var(--female-col)"></span>Female</span>
+          <span class="leg"><span class="leg-dot" style="background:#94a3b8"></span>Target</span>
+        </div>
+        <div class="chart-wrap" id="genderAllWrap" style="min-height:420px"><canvas id="genderAllC"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><span class="card-title">Gender Gap Analysis</span></div>
+        <div id="genderGapCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px"></div>
+      </div>
+    </div>
+
+    <!-- PAGE: STRATEGY -->
+    <div class="page" id="pg-strategy">
+      <div class="strat-grid">
+        <div class="card">
+          <div class="card-hdr"><span class="card-title">Strategic Domain Radar</span></div>
+          <div class="radar-wrap"><canvas id="radarC"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><span class="card-title">Domain Performance</span></div>
+          <div class="domain-cards" id="domainCards"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: ATTENTION -->
+    <div class="page" id="pg-attention">
+      <div class="attn-grid" id="attnGrid"></div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- FOOTER -->
+  <footer style="border-top:1px solid var(--border);margin-top:auto;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--white);">
+    <div style="display:flex;align-items:center;gap(10px;flex-wrap:wrap;gap:6px">
+      <span style="display:inline-block;width:3px;height:32px;background:var(--navy);border-radius:2px;margin-right:12px;flex-shrink:0"></span>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--navy);letter-spacing:.2px">
+          College of Pharmacy · Imam Abdulrahman Bin Faisal University
+        </div>
+        <div style="font-size:11px;color:var(--slate);margin-top:2px">
+          Key Performance Indicators Dashboard
+        </div>
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;color:var(--slate)">Prepared by the Quality Management &amp; Academic Accreditation Unit</div>
+      <div style="font-size:11px;font-weight:600;color:var(--navy);margin-top:1px">Prof. Ahmed Mostafa</div>
+    </div>
+  </footer>
+
+</main><!-- /main -->
+
+<script>
+/* ═══════════════════ DATA ═══════════════════ */
+const RAW = [
+{n:"Students' evaluation of quality of learning experience in the programs",s:"Learning Experience",c:"KPI-01",y:"2022-2023",t:null,m:3.7,f:3.9,x:3.8,i:null,e1:null,e2:null},
+{n:"Students' evaluation of the quality of the courses",s:"Course Quality",c:"KPI-02",y:"2022-2023",t:null,m:4.0,f:4.1,x:4.0,i:null,e1:null,e2:null},
+{n:"Program completion rate for students in the specified period",s:"Completion Rate",c:"KPI-03",y:"2022-2023",t:null,m:91.7,f:93.0,x:92.5,i:null,e1:null,e2:null},
+{n:"First-year students retention rate",s:"Retention Rate",c:"KPI-04",y:"2022-2023",t:null,m:84.0,f:100.0,x:94.1,i:null,e1:null,e2:null},
+{n:"Students' performance in the professional and/or national examinations",s:"Exam Performance",c:"KPI-05",y:"2022-2023",t:null,m:100.0,f:100.0,x:100.0,i:null,e1:null,e2:null},
+{n:"Number of graduates who within a year of graduation were: a. employed",s:"Graduate Employment",c:"KPI-06-A",y:"2022-2023",t:null,m:95.8,f:91.1,x:92.8,i:null,e1:null,e2:null},
+{n:"Number of graduates who within a year of graduation were: b. enrolled in postgraduate programs during the first year of their graduation.",s:"Postgrad Enrollment",c:"KPI-06-B",y:"2022-2023",t:null,m:4.2,f:6.7,x:5.8,i:null,e1:null,e2:null},
+{n:"Employers' evaluation of the Program graduate\u2019s proficiency",s:"Employer Evaluation",c:"KPI-07",y:"2022-2023",t:null,m:null,f:null,x:4.2,i:null,e1:null,e2:null},
+{n:"Ratio of students to teaching staff",s:"Student:Staff Ratio",c:"KPI-08",y:"2022-2023",t:null,m:null,f:null,x:6.4,i:null,e1:null,e2:null},
+{n:"Percentage of publications of faculty members",s:"Faculty Publications",c:"KPI-09",y:"2022",t:null,m:85.2,f:100.0,x:89.2,i:null,e1:null,e2:null},
+{n:"Rate of published research per faculty member",s:"Research Rate",c:"KPI-10",y:"2022",t:null,m:null,f:null,x:2.8,i:null,e1:null,e2:null},
+{n:"Citations rate in refereed journals per faculty member",s:"Citations Rate",c:"KPI-11",y:"2022",t:null,m:null,f:null,x:121.0,i:null,e1:null,e2:null},
+{n:"Students' evaluation of quality of learning experience in the programs",s:"Learning Experience",c:"KPI-01",y:"2023-2024",t:3.9,m:4.4,f:4.4,x:4.4,i:3.8,e1:4.1,e2:4.01},
+{n:"Students' evaluation of the quality of the courses",s:"Course Quality",c:"KPI-02",y:"2023-2024",t:4.2,m:4.3,f:4.4,x:4.4,i:4.0,e1:4.4,e2:4.0},
+{n:"Program completion rate for students in the specified period",s:"Completion Rate",c:"KPI-03",y:"2023-2024",t:94.0,m:93.2,f:94.2,x:93.8,i:93.4,e1:84.0,e2:83.0},
+{n:"First-year students retention rate",s:"Retention Rate",c:"KPI-04",y:"2023-2024",t:97.5,m:96.2,f:100.0,x:98.1,i:97.5,e1:97.8,e2:98.0},
+{n:"Students' performance in the professional and/or national examinations",s:"Exam Performance",c:"KPI-05",y:"2023-2024",t:100.0,m:100.0,f:100.0,x:100.0,i:100.0,e1:100.0,e2:100.0},
+{n:"Number of graduates who within a year of graduation were: a. employed",s:"Graduate Employment",c:"KPI-06-A",y:"2023-2024",t:95.0,m:95.3,f:94.1,x:94.7,i:93.7,e1:87.5,e2:null},
+{n:"Number of graduates who within a year of graduation were: b. enrolled in postgraduate programs during the first year of their graduation.",s:"Postgrad Enrollment",c:"KPI-06-B",y:"2023-2024",t:6.0,m:7.0,f:7.8,x:7.4,i:5.6,e1:5.0,e2:null},
+{n:"Employers' evaluation of the Program graduate\u2019s proficiency",s:"Employer Evaluation",c:"KPI-07",y:"2023-2024",t:4.4,m:null,f:null,x:4.5,i:4.2,e1:4.5,e2:4.4},
+{n:"Ratio of students to teaching staff",s:"Student:Staff Ratio",c:"KPI-08",y:"2023-2024",t:6.3,m:null,f:null,x:6.3,i:6.9,e1:14.4,e2:8.01},
+{n:"Percentage of publications of faculty members",s:"Faculty Publications",c:"KPI-09",y:"2023",t:94.0,m:92.9,f:100.0,x:94.3,i:91.2,e1:89.0,e2:93.0},
+{n:"Rate of published research per faculty member",s:"Research Rate",c:"KPI-10",y:"2023",t:3.1,m:null,f:null,x:3.0,i:2.9,e1:3.0,e2:3.6},
+{n:"Citations rate in refereed journals per faculty member",s:"Citations Rate",c:"KPI-11",y:"2023",t:130.0,m:null,f:null,x:192.9,i:110.8,e1:74.5,e2:111.0},
+{n:"Students' evaluation of quality of learning experience in the programs",s:"Learning Experience",c:"KPI-01",y:"2024-2025",t:4.1,m:4.4,f:4.7,x:4.6,i:4.1,e1:3.7,e2:null},
+{n:"Students' evaluation of the quality of the courses",s:"Course Quality",c:"KPI-02",y:"2024-2025",t:4.4,m:4.3,f:4.2,x:4.2,i:4.2,e1:4.4,e2:null},
+{n:"Program completion rate for students in the specified period",s:"Completion Rate",c:"KPI-03",y:"2024-2025",t:94.0,m:94.3,f:94.2,x:94.3,i:93.1,e1:63.1,e2:null},
+{n:"First-year students retention rate",s:"Retention Rate",c:"KPI-04",y:"2024-2025",t:98.0,m:97.0,f:100.0,x:98.8,i:95.8,e1:95.0,e2:null},
+{n:"Students' performance in the professional and/or national examinations",s:"Exam Performance",c:"KPI-05",y:"2024-2025",t:100.0,m:100.0,f:100.0,x:100.0,i:100.0,e1:96.1,e2:null},
+{n:"Number of graduates who within a year of graduation were: a. employed",s:"Graduate Employment",c:"KPI-06-A",y:"2024-2025",t:95.0,m:95.8,f:95.6,x:95.7,i:93.9,e1:72.0,e2:null},
+{n:"Number of graduates who within a year of graduation were: b. enrolled in postgraduate programs during the first year of their graduation.",s:"Postgrad Enrollment",c:"KPI-06-B",y:"2024-2025",t:8.0,m:8.8,f:8.9,x:8.7,i:6.7,e1:2.0,e2:null},
+{n:"Employers' evaluation of the Program graduate\u2019s proficiency",s:"Employer Evaluation",c:"KPI-07",y:"2024-2025",t:4.6,m:null,f:null,x:4.5,i:4.4,e1:null,e2:null},
+{n:"Ratio of students to teaching staff",s:"Student:Staff Ratio",c:"KPI-08",y:"2024-2025",t:6.01,m:null,f:null,x:5.7,i:6.4,e1:9.5,e2:null},
+{n:"Percentage of publications of faculty members",s:"Faculty Publications",c:"KPI-09",y:"2024",t:95.0,m:92.9,f:100.0,x:94.3,i:91.7,e1:80.4,e2:null},
+{n:"Rate of published research per faculty member",s:"Research Rate",c:"KPI-10",y:"2024",t:3.1,m:null,f:null,x:3.0,i:2.9,e1:2.9,e2:null},
+{n:"Citations rate in refereed journals per faculty member",s:"Citations Rate",c:"KPI-11",y:"2024",t:200.0,m:null,f:null,x:265.0,i:156.0,e1:89.2,e2:null},
+{n:"Percentage of students\u2019 publications out of all faculty publications",s:"Student Publications",c:"KPI-12",y:"2024-2025",t:14.5,m:null,f:null,x:14.4,i:14.5,e1:null,e2:null},
+{n:"Number of student poster/oral presentations presented in local and international conferences",s:"Conference Presentations",c:"KPI-13",y:"2024-2025",t:29.0,m:null,f:null,x:41.0,i:29.0,e1:null,e2:null},
+{n:"Number of national and international partnerships and/or memorandum of understanding",s:"Partnerships & MoUs",c:"KPI-14",y:"2024-2025",t:5.0,m:null,f:null,x:5.0,i:4.0,e1:null,e2:null},
+{n:"Percentage of students participated in community service activities",s:"Student Community Service",c:"KPI-15",y:"2024-2025",t:78.0,m:null,f:null,x:86.4,i:77.4,e1:null,e2:null},
+{n:"Percentage of faculty who participated in community service activities",s:"Faculty Community Service",c:"KPI-16",y:"2024-2025",t:95.9,m:null,f:null,x:100.0,i:95.9,e1:null,e2:null},
+{n:"Satisfaction level of (faculty and preceptors) with the professional development programs offered",s:"PD Satisfaction",c:"KPI-17",y:"2024-2025",t:3.9,m:null,f:null,x:4.2,i:null,e1:null,e2:null},
+{n:"Students\u2019 satisfaction level of faculty lecturing skills",s:"Faculty Lecturing Skills",c:"KPI-18",y:"2024-2025",t:4.4,m:4.4,f:4.4,x:4.4,i:4.4,e1:null,e2:null},
+{n:"Number of training sites for IPPE and APPE",s:"Training Sites",c:"KPI-19",y:"2024-2025",t:60.0,m:null,f:null,x:60.0,i:60.0,e1:null,e2:null},
+{n:"Student satisfaction with the field experience offered during the program",s:"Field Experience",c:"KPI-20",y:"2024-2025",t:3.8,m:null,f:null,x:4.0,i:null,e1:null,e2:null},
+{n:"Number of extracurricular activities conducted annually",s:"Extracurricular Activities",c:"KPI-21",y:"2024-2025",t:12.0,m:null,f:null,x:19.0,i:12.0,e1:null,e2:null},
+{n:"Faculty satisfaction level with their job",s:"Faculty Job Satisfaction",c:"KPI-22",y:"2024-2025",t:4.0,m:null,f:null,x:4.0,i:4.0,e1:null,e2:null},
+{n:"Faculty attrition rate",s:"Faculty Attrition Rate",c:"KPI-23",y:"2024-2025",t:2.0,m:null,f:null,x:0.0,i:2.0,e1:null,e2:null},
+{n:"Students' evaluation of quality of learning experience in the programs",s:"Learning Experience",c:"KPI-01",y:"2025-2026",t:3.9,m:4.4,f:4.7,x:4.6,i:4.1,e1:3.7,e2:null},
+{n:"Students' evaluation of the quality of the courses",s:"Course Quality",c:"KPI-02",y:"2025-2026",t:4.0,m:4.3,f:4.2,x:4.2,i:4.2,e1:4.4,e2:null},
+{n:"Program completion rate for students in the specified period",s:"Completion Rate",c:"KPI-03",y:"2025-2026",t:96.1,m:94.3,f:94.2,x:94.3,i:93.1,e1:63.1,e2:null},
+{n:"First-year students retention rate",s:"Retention Rate",c:"KPI-04",y:"2025-2026",t:98.0,m:97.0,f:100.0,x:98.8,i:95.8,e1:95.0,e2:null},
+{n:"Students' performance in the professional and/or national examinations",s:"Exam Performance",c:"KPI-05",y:"2025-2026",t:100.0,m:100.0,f:100.0,x:100.0,i:100.0,e1:96.1,e2:null},
+{n:"Number of graduates who within a year of graduation were: a. employed",s:"Graduate Employment",c:"KPI-06-A",y:"2025-2026",t:94.0,m:95.8,f:95.6,x:95.7,i:93.9,e1:72.0,e2:null},
+{n:"Number of graduates who within a year of graduation were: b. enrolled in postgraduate programs during the first year of their graduation.",s:"Postgrad Enrollment",c:"KPI-06-B",y:"2025-2026",t:6.0,m:8.8,f:8.9,x:8.7,i:6.7,e1:2.0,e2:null},
+{n:"Employers' evaluation of the Program graduate\u2019s proficiency",s:"Employer Evaluation",c:"KPI-07",y:"2025-2026",t:4.2,m:null,f:null,x:4.5,i:4.4,e1:null,e2:null},
+{n:"Ratio of students to teaching staff",s:"Student:Staff Ratio",c:"KPI-08",y:"2025-2026",t:6.01,m:null,f:null,x:5.7,i:6.4,e1:9.5,e2:null},
+{n:"Percentage of publications of faculty members",s:"Faculty Publications",c:"KPI-09",y:"2025",t:95.0,m:92.9,f:100.0,x:94.3,i:91.7,e1:80.4,e2:null},
+{n:"Rate of published research per faculty member",s:"Research Rate",c:"KPI-10",y:"2025",t:3.1,m:null,f:null,x:3.0,i:2.9,e1:2.9,e2:null},
+{n:"Citations rate in refereed journals per faculty member",s:"Citations Rate",c:"KPI-11",y:"2025",t:203.0,m:null,f:null,x:265.0,i:156.0,e1:89.2,e2:null},
+{n:"Percentage of students\u2019 publications out of all faculty publications",s:"Student Publications",c:"KPI-12",y:"2025-2026",t:14.5,m:null,f:null,x:14.4,i:14.5,e1:null,e2:null},
+{n:"Number of student poster/oral presentations presented in local and international conferences",s:"Conference Presentations",c:"KPI-13",y:"2025-2026",t:29.0,m:null,f:null,x:41.0,i:29.0,e1:null,e2:null},
+{n:"Number of national and international partnerships and/or memorandum of understanding",s:"Partnerships & MoUs",c:"KPI-14",y:"2025-2026",t:5.0,m:null,f:null,x:5.0,i:4.0,e1:null,e2:null},
+{n:"Percentage of students participated in community service activities",s:"Student Community Service",c:"KPI-15",y:"2025-2026",t:78.0,m:null,f:null,x:86.4,i:77.4,e1:null,e2:null},
+{n:"Percentage of faculty who participated in community service activities",s:"Faculty Community Service",c:"KPI-16",y:"2025-2026",t:95.9,m:null,f:null,x:100.0,i:95.9,e1:null,e2:null},
+{n:"Satisfaction level of (faculty and preceptors) with the professional development programs offered",s:"PD Satisfaction",c:"KPI-17",y:"2025-2026",t:3.9,m:null,f:null,x:4.2,i:null,e1:null,e2:null},
+{n:"Students\u2019 satisfaction level of faculty lecturing skills",s:"Faculty Lecturing Skills",c:"KPI-18",y:"2025-2026",t:4.4,m:4.4,f:4.4,x:4.4,i:4.4,e1:null,e2:null},
+{n:"Number of training sites for IPPE and APPE",s:"Training Sites",c:"KPI-19",y:"2025-2026",t:60.0,m:null,f:null,x:60.0,i:60.0,e1:null,e2:null},
+{n:"Student satisfaction with the field experience offered during the program",s:"Field Experience",c:"KPI-20",y:"2025-2026",t:3.8,m:null,f:null,x:4.0,i:null,e1:null,e2:null},
+{n:"Number of extracurricular activities conducted annually",s:"Extracurricular Activities",c:"KPI-21",y:"2025-2026",t:12.0,m:null,f:null,x:19.0,i:12.0,e1:null,e2:null},
+{n:"Faculty satisfaction level with their job",s:"Faculty Job Satisfaction",c:"KPI-22",y:"2025-2026",t:4.0,m:null,f:null,x:4.0,i:4.0,e1:null,e2:null},
+{n:"Faculty attrition rate",s:"Faculty Attrition Rate",c:"KPI-23",y:"2025-2026",t:2.0,m:null,f:null,x:0.0,i:2.0,e1:null,e2:null}
+];
+
+const REVERSE = ["KPI-08","KPI-23"];
+const DOMAINS = [
+  {label:"Student Learning",  icon:"📚", color:"#2563eb", bg:"#dbeafe", codes:["KPI-01","KPI-02","KPI-03","KPI-04","KPI-05"]},
+  {label:"Graduate Success",  icon:"🎓", color:"#059669", bg:"#d1fae5", codes:["KPI-06-A","KPI-06-B","KPI-07"]},
+  {label:"Research Output",   icon:"🔬", color:"#d97706", bg:"#fef3c7", codes:["KPI-09","KPI-10","KPI-11","KPI-12","KPI-13"]},
+  {label:"Teaching & Clinical",icon:"🏥",color:"#16a34a", bg:"#dcfce7", codes:["KPI-08","KPI-18","KPI-19","KPI-20"]},
+  {label:"Community & Partners",icon:"🤝",color:"#7c3aed",bg:"#ede9fe", codes:["KPI-14","KPI-15","KPI-16"]},
+  {label:"Faculty Wellbeing", icon:"⭐", color:"#db2777", bg:"#fce7f3", codes:["KPI-17","KPI-21","KPI-22","KPI-23"]},
+];
+
+/* ═══════════════════ STATE ═══════════════════ */
+// Build year list from data (sorted ascending) and pick the latest as default
+const ALL_YEARS = [...new Set(RAW.map(r=>r.y))].filter(y=>/^\d{4}-\d{4}$/.test(y)).sort();
+let selYear = ALL_YEARS[ALL_YEARS.length - 1] || "2024-2025";
+
+function buildYearPills() {
+  const container = document.getElementById("yearPills");
+  if (!container) return;
+  container.innerHTML = ALL_YEARS.map(yr => {
+    const label = yr.replace(/^(\d{4})-(\d{4})$/, (_,a,b) => a+'–'+b.slice(2));
+    const active = yr === selYear ? ' active' : '';
+    return `<button class="ypill${active}" onclick="setYear('${yr}',this)">${label}</button>`;
+  }).join('');
+}
+buildYearPills();
+let selGender = "Combined";
+let selKPI = "KPI-01";
+let charts = {};
+
+/* Register datalabels plugin globally */
+Chart.register(ChartDataLabels);
+
+/* ═══════════════════ HELPERS ═══════════════════ */
+const getA = (r, g) => g==="Male"?r.m : g==="Female"?r.f : r.x;
+const isRev = c => REVERSE.includes(c);
+function getStatus(c, a, t) {
+  if (a==null||t==null) return "nd";
+  const ok = isRev(c) ? a<=t : a>=t;
+  if (ok) return "achieved";
+  return Math.abs(a-t)/t <= 0.03 ? "borderline" : "not-achieved";
+}
+const SC = s => s==="achieved"?"s-achieved":s==="borderline"?"s-borderline":s==="not-achieved"?"s-not":"s-nd";
+const PC = s => s==="achieved"?"p-achieved":s==="borderline"?"p-borderline":s==="not-achieved"?"p-not":"p-nd";
+const VC = s => s==="achieved"?"v-achieved":s==="borderline"?"v-borderline":s==="not-achieved"?"v-not":"v-nd";
+const ST = s => s==="achieved"?"✓ Target Achieved":s==="borderline"?"⚠ Needs Monitoring":s==="not-achieved"?"✗ Not Achieved":"— No Data";
+const SC2 = s => s==="achieved"?"#16a34a":s==="borderline"?"#d97706":s==="not-achieved"?"#dc2626":"#94a3b8";
+const SC3 = s => s==="achieved"?"#14532d":s==="borderline"?"#78350f":s==="not-achieved"?"#7f1d1d":"#475569";
+function getYearRows(yr) {
+  const seen = new Set();
+  return RAW.filter(r => r.y === yr && (!seen.has(r.c) && seen.add(r.c)));
+}
+function getPrev(code, gender) {
+  const idx = ALL_YEARS.indexOf(selYear);
+  const prev = idx > 0 ? ALL_YEARS[idx - 1] : null;
+  if (!prev) return null;
+  const r = RAW.find(r=>r.c===code&&r.y===prev);
+  return r ? getA(r, gender) : null;
+}
+function destroyChart(id) { if(charts[id]){ charts[id].destroy(); delete charts[id]; } }
+
+/* ═══════════════════ NAVIGATION ═══════════════════ */
+function showPage(id, btn) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
+  document.getElementById("pg-"+id).classList.add("active");
+  if (btn) btn.classList.add("active");
+  const titles = {overview:"KPI Overview",detail:"KPI Detail",gender:"Gender Analysis",strategy:"Strategic View",attention:"Needs Attention"};
+  document.getElementById("topbarTitle").textContent = titles[id] || id;
+  if (id==="detail") renderDetail();
+  if (id==="strategy") renderStrategy();
+  if (id==="attention") renderAttention();
+  if (id==="gender") renderGenderPage();
+}
+
+function openKPI(code) {
+  selKPI = code;
+  const sel = document.getElementById("kpiSel");
+  if (sel) sel.value = code;
+  showPage("detail", document.querySelector('[data-page=detail]'));
+}
+
+/* ═══════════════════ YEAR / GENDER ═══════════════════ */
+function setYear(yr, btn) {
+  selYear = yr;
+  document.querySelectorAll(".ypill").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById("topbarYear").textContent = yr;
+  fullRender();
+}
+
+function setGender(btn) {
+  selGender = btn.dataset.g;
+  document.querySelectorAll(".gtab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  fullRender();
+}
+
+/* ═══════════════════ SUMMARY STRIP ═══════════════════ */
+function renderSummary() {
+  const rows = getYearRows(selYear);
+  let ach=0, bord=0, fail=0;
+  rows.forEach(r => {
+    const s = getStatus(r.c, getA(r, selGender), r.t);
+    if (s==="achieved") ach++;
+    else if (s==="borderline") bord++;
+    else if (s==="not-achieved") fail++;
+  });
+  const total = rows.length;
+  const pct = n => total ? Math.round(n/total*100) : 0;
+  document.getElementById("sumStrip").innerHTML = `
+    <div class="scard" style="border-color:#2563eb" data-icon="📋">
+      <div class="scard-lbl">Total KPIs</div>
+      <div class="scard-val" style="color:#2563eb">${total}</div>
+      <div class="scard-sub">${selYear} · ${selGender}</div>
+    </div>
+    <div class="scard" style="border-color:#22c55e" data-icon="✓">
+      <div class="scard-lbl">Target Achieved</div>
+      <div class="scard-val" style="color:#16a34a">${ach}</div>
+      <div class="scard-sub">${pct(ach)}% of KPIs on track</div>
+    </div>
+    <div class="scard" style="border-color:#f59e0b" data-icon="⚠">
+      <div class="scard-lbl">Needs Monitoring</div>
+      <div class="scard-val" style="color:#d97706">${bord}</div>
+      <div class="scard-sub">Borderline performance</div>
+    </div>
+    <div class="scard" style="border-color:#ef4444" data-icon="✗">
+      <div class="scard-lbl">Not Achieved</div>
+      <div class="scard-val" style="color:#dc2626">${fail}</div>
+      <div class="scard-sub">${pct(fail)}% require intervention</div>
+    </div>`;
+  document.getElementById("attnBadge").textContent = fail + bord;
+}
+
+/* ═══════════════════ SIDEBAR KPI LIST ═══════════════════ */
+function renderSideKPIs() {
+  const rows = getYearRows(selYear);
+  document.getElementById("sideKPIList").innerHTML = rows.map(r => {
+    const s = getStatus(r.c, getA(r, selGender), r.t);
+    const dot = s==="achieved"?"#22c55e":s==="borderline"?"#f59e0b":s==="not-achieved"?"#ef4444":"#94a3b8";
+    return `<button class="nav-item" style="font-size:11px;padding:6px 10px" onclick="openKPI('${r.c}')">
+      <span style="width:7px;height:7px;border-radius:50%;background:${dot};flex-shrink:0;display:inline-block"></span>
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.c}</span>
+    </button>`;
+  }).join("");
+}
+
+/* ═══════════════════ OVERVIEW ═══════════════════ */
+function renderOverview() {
+  const q = (document.getElementById("searchBox").value||"").toLowerCase();
+  const rows = getYearRows(selYear).filter(r => !q||r.n.toLowerCase().includes(q)||r.c.toLowerCase().includes(q));
+  const _pidx = ALL_YEARS.indexOf(selYear); const prev = _pidx > 0 ? ALL_YEARS[_pidx-1] : null;
+
+  document.getElementById("kpiGrid").innerHTML = rows.map(r => {
+    const a = getA(r, selGender);
+    const s = getStatus(r.c, a, r.t);
+    const prevRow = RAW.find(p=>p.c===r.c&&p.y===prev);
+    const prevA = prevRow ? getA(prevRow, selGender) : null;
+    let deltaHtml = "";
+    if (a!=null && prevA!=null) {
+      const d = a - prevA;
+      const good = isRev(r.c) ? d<=0 : d>=0;
+      const cls = d>0?(good?"d-up-good":"d-down-bad"):d<0?(good?"d-up-good":"d-down-bad"):"d-flat";
+      const arrow = d>0?"↑":d<0?"↓":"→";
+      deltaHtml = `<span class="kc-delta ${cls}">${arrow} ${Math.abs(d).toFixed(1)}</span>`;
+    }
+    const hasMF = r.m!=null && r.f!=null;
+    let genderHtml = "";
+    if (hasMF) {
+      genderHtml = `<div class="kc-gender-row">
+        <span class="kc-g kc-g-m">♂ ${r.m}</span>
+        <span class="kc-g kc-g-f">♀ ${r.f}</span>
+      </div>`;
+    }
+    return `<div class="kpi-card ${SC(s)}" onclick="openKPI('${r.c}')">
+      <div class="kc-top">
+        <span class="kc-code">${r.c}</span>
+        ${!hasMF?'<span class="kc-avail">Combined only</span>':''}
+      </div>
+      <div class="kc-name">${r.n}</div>
+      ${genderHtml}
+      <div class="kc-vals">
+        <div class="kc-main-val ${VC(s)}">${a!=null?a:"—"}</div>
+        ${r.t!=null?`<div><div class="kc-target-lbl">Target</div><div class="kc-target-val">${r.t}</div></div>`:""}
+      </div>
+      <div class="kc-bottom">
+        <span class="kc-pill ${PC(s)}">${ST(s)}</span>
+        ${deltaHtml}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+/* ═══════════════════ KPI SELECT POPULATE ═══════════════════ */
+function populateSelect() {
+  const sel = document.getElementById("kpiSel");
+  const rows = getYearRows(selYear);
+  sel.innerHTML = rows.map(r => `<option value="${r.c}" ${r.c===selKPI?"selected":""}>${r.c} – ${r.n}</option>`).join("");
+}
+
+/* ═══════════════════ DETAIL ═══════════════════ */
+function renderDetail() {
+  const row = RAW.find(r=>r.c===selKPI&&r.y===selYear);
+  if (!row) return;
+  const a = getA(row, selGender);
+  const s = getStatus(row.c, a, row.t);
+  const borderColor = SC2(s);
+
+  // Header
+  document.getElementById("detailHdr").style.borderLeftColor = borderColor;
+  document.getElementById("detailHdr").innerHTML = `
+    <div>
+      <div class="dh-name">${row.n}</div>
+      <div class="dh-code">${row.c} · Academic Year ${row.y}</div>
+    </div>
+    <div class="dh-right">
+      <span class="status-pill ${PC(s)}">${ST(s)}</span>
+    </div>`;
+
+  // Availability
+  const avail = [
+    {lbl:"Combined",ok:row.x!=null},{lbl:"Male",ok:row.m!=null},{lbl:"Female",ok:row.f!=null},
+    {lbl:"Internal Bench.",ok:row.i!=null},{lbl:"Ext. KFU",ok:row.e1!=null},{lbl:"Ext. KSAHS",ok:row.e2!=null}
+  ];
+  document.getElementById("availRow").innerHTML = avail.map(v =>
+    `<span class="avail-chip ${v.ok?"av-ok":"av-no"}">${v.ok?"✓":"✗"} ${v.lbl}</span>`
+  ).join("");
+
+  renderGauge(row, a, s);
+  renderTrend(row.c);
+  renderGenderComparison(row.c);
+  renderBench(row, a);
+  renderInsights(row, a, s);
+}
+
+/* ── GAUGE ── */
+function renderGauge(row, a, s) {
+  if (a==null) {
+    document.getElementById("gaugeArea").innerHTML = `<div style="color:var(--slate);padding:40px;text-align:center;font-size:13px">No data for this gender view</div>`;
+    document.getElementById("gaugeDelta").innerHTML = "";
+    return;
+  }
+  const prev = getPrev(row.c, selGender);
+  if (prev!=null) {
+    const d = a - prev;
+    const good = isRev(row.c) ? d<=0 : d>=0;
+    const cls = d>0?(good?"db-up-good":"db-up-bad"):d<0?(good?"db-down-good":"db-down-bad"):"db-flat";
+    const arrow = d>0?"↑":d<0?"↓":"→";
+    document.getElementById("gaugeDelta").innerHTML = `<span class="delta-badge ${cls}">${arrow} ${Math.abs(d).toFixed(1)} vs prior yr</span>`;
+  } else {
+    document.getElementById("gaugeDelta").innerHTML = "";
+  }
+
+  const maxV = row.t ? Math.max(a, row.t)*1.12 : a*1.25;
+  const minV = row.t ? Math.min(a, row.t)*0.88 : a*0.75;
+  const range = maxV-minV||1;
+  const pct = Math.min(Math.max((a-minV)/range, 0), 1);
+  const cx=110, cy=110, R=90;
+  function polar(pct2, r2) {
+    const ang = (pct2*180-180)*Math.PI/180;
+    return {x: cx+r2*Math.cos(ang), y: cy+r2*Math.sin(ang)};
+  }
+  const zones=[{p:0,col:"#fee2e2"},{p:.5,col:"#fef3c7"},{p:.8,col:"#dcfce7"}];
+  let arcs="";
+  for(let z=0;z<zones.length;z++){
+    const p1=zones[z].p, p2=z<zones.length-1?zones[z+1].p:1;
+    const a1=polar(p1,R),a2=polar(p2,R),b1=polar(p1,R-22),b2=polar(p2,R-22);
+    const lg=((p2-p1)*180)>180?1:0;
+    arcs+=`<path d="M${a1.x},${a1.y} A${R},${R} 0 ${lg},1 ${a2.x},${a2.y} L${b2.x},${b2.y} A${R-22},${R-22} 0 ${lg},0 ${b1.x},${b1.y} Z" fill="${zones[z].col}" opacity="0.9"/>`;
+  }
+  const need=polar(pct,80);
+  const statusColor=SC2(s);
+  document.getElementById("gaugeArea").innerHTML = `
+    <svg viewBox="0 0 220 120" width="220" style="overflow:visible;display:block;margin:0 auto">
+      ${arcs}
+      <path d="M${polar(0,R).x},${polar(0,R).y} A${R},${R} 0 0,1 ${polar(1,R).x},${polar(1,R).y}" fill="none" stroke="#e2e8f0" stroke-width="1.5"/>
+      <line x1="${cx}" y1="${cy}" x2="${need.x}" y2="${need.y}" stroke="${statusColor}" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="${cx}" cy="${cy}" r="6" fill="${statusColor}"/>
+      <text x="${polar(0,R).x-4}" y="${cy+8}" font-size="9" fill="#94a3b8" text-anchor="middle">${minV.toFixed(1)}</text>
+      <text x="${polar(1,R).x+4}" y="${cy+8}" font-size="9" fill="#94a3b8" text-anchor="middle">${maxV.toFixed(1)}</text>
+    </svg>
+    <div class="gauge-readout">
+      <div class="gauge-val" style="color:${statusColor}">${a}</div>
+      <div class="gauge-sub">${selGender} actual value</div>
+    </div>
+    <div class="gauge-stats">
+      ${row.t!=null?`<div class="gs"><div class="gs-lbl">Target</div><div class="gs-val">${row.t}</div></div>`:""}
+      ${row.i!=null?`<div class="gs"><div class="gs-lbl">Internal</div><div class="gs-val">${row.i}</div></div>`:""}
+      ${row.e1!=null?`<div class="gs"><div class="gs-lbl">Ext. KFU</div><div class="gs-val">${row.e1}</div></div>`:""}
+    </div>`;
+}
+
+/* ── TREND ── */
+function renderTrend(code) {
+  const all = RAW.filter(r=>r.c===code).sort((a,b)=>a.y.localeCompare(b.y));
+  destroyChart("trend");
+  const hasMF = all.some(r=>r.m!=null||r.f!=null);
+  const datasets = [];
+  datasets.push({label:"Combined",data:all.map(r=>r.x),borderColor:"#0f766e",backgroundColor:"rgba(15,118,110,.07)",tension:.35,pointRadius:5,pointBackgroundColor:"#0f766e",fill:true,borderWidth:2,borderDash:[]});
+  if (hasMF) {
+    datasets.push({label:"Male",data:all.map(r=>r.m),borderColor:"#2563eb",tension:.35,pointRadius:4,pointBackgroundColor:"#2563eb",fill:false,borderWidth:1.5,borderDash:[4,3]});
+    datasets.push({label:"Female",data:all.map(r=>r.f),borderColor:"#db2777",tension:.35,pointRadius:4,pointBackgroundColor:"#db2777",fill:false,borderWidth:1.5,borderDash:[4,3]});
+  }
+  datasets.push({label:"Target",data:all.map(r=>r.t),borderColor:"#16a34a",tension:0,pointRadius:3,pointBackgroundColor:"#16a34a",fill:false,borderWidth:1.5,borderDash:[6,4]});
+  document.getElementById("trendLeg").innerHTML = datasets.map(d=>`<span class="leg"><span class="leg-dot" style="background:${d.borderColor}"></span>${d.label}</span>`).join("");
+  charts["trend"] = new Chart(document.getElementById("trendC"),{
+    type:"line",data:{labels:all.map(r=>r.y),datasets},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},
+      scales:{x:{grid:{color:"rgba(0,0,0,.04)"},ticks:{font:{size:11},color:"#64748b"}},
+              y:{grid:{color:"rgba(0,0,0,.04)"},ticks:{font:{size:11},color:"#64748b"}}}}
+  });
+}
+
+/* ── GENDER COMPARISON IN DETAIL ── */
+function renderGenderComparison(code) {
+  const all = RAW.filter(r=>r.c===code).sort((a,b)=>a.y.localeCompare(b.y));
+  const hasMF = all.some(r=>r.m!=null||r.f!=null);
+  document.getElementById("genderAvailNote").textContent = hasMF ? "" : "Gender breakdown not available for this KPI";
+
+  // Bar: current year M vs F vs target
+  destroyChart("genderBar");
+  destroyChart("genderTrend");
+
+  const curRow = all.find(r=>r.y===selYear);
+  if (curRow && hasMF) {
+    const barData = [];
+    const barLabels = [];
+    const barColors = [];
+    if (curRow.m!=null){barLabels.push("Male");barData.push(curRow.m);barColors.push("#2563eb");}
+    if (curRow.f!=null){barLabels.push("Female");barData.push(curRow.f);barColors.push("#db2777");}
+    if (curRow.x!=null){barLabels.push("Combined");barData.push(curRow.x);barColors.push("#0f766e");}
+    if (curRow.t!=null){barLabels.push("Target");barData.push(curRow.t);barColors.push("#16a34a");}
+    if (curRow.i!=null){barLabels.push("Internal Bench.");barData.push(curRow.i);barColors.push("#d97706");}
+    document.getElementById("genderBarLeg").innerHTML = barLabels.map((l,i)=>`<span class="leg"><span class="leg-dot" style="background:${barColors[i]}"></span>${l}: <strong>${barData[i]??'—'}</strong></span>`).join("");
+    const allV=barData.filter(v=>v!=null);
+    const mn=allV.length?Math.min(...allV)*.9:0, mx=allV.length?Math.max(...allV)*1.07:10;
+    charts["genderBar"] = new Chart(document.getElementById("genderBarC"),{
+      type:"bar",data:{labels:barLabels,datasets:[{data:barData,backgroundColor:barColors,borderRadius:6,barThickness:36}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},
+          datalabels:{anchor:"end",align:"end",color:(context)=>barColors[context.dataIndex]||"#64748b",font:{size:12,weight:"600"},formatter:(v)=>v!=null?v:''}},
+        scales:{x:{grid:{display:false},ticks:{font:{size:11},color:"#64748b"}},
+                y:{min:mn,max:mx*1.08,grid:{color:"rgba(0,0,0,.04)"},ticks:{font:{size:11},color:"#64748b"}}}}
+    });
+
+    // Trend M vs F
+    charts["genderTrend"] = new Chart(document.getElementById("genderTrendC"),{
+      type:"line",
+      data:{labels:all.map(r=>r.y),datasets:[
+        {label:"Male",data:all.map(r=>r.m),borderColor:"#2563eb",tension:.35,pointRadius:4,pointBackgroundColor:"#2563eb",fill:false,borderWidth:2},
+        {label:"Female",data:all.map(r=>r.f),borderColor:"#db2777",tension:.35,pointRadius:4,pointBackgroundColor:"#db2777",fill:false,borderWidth:2},
+        {label:"Combined",data:all.map(r=>r.x),borderColor:"#0f766e",tension:.35,pointRadius:3,pointBackgroundColor:"#0f766e",fill:false,borderWidth:1.5,borderDash:[4,3]},
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},
+        scales:{x:{grid:{color:"rgba(0,0,0,.04)"},ticks:{font:{size:11},color:"#64748b"}},
+                y:{grid:{color:"rgba(0,0,0,.04)"},ticks:{font:{size:11},color:"#64748b"}}}}
+    });
+  } else {
+    document.getElementById("genderBarC").parentElement.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:180px;color:#94a3b8;font-size:13px">Gender-disaggregated data not available</div>`;
+    document.getElementById("genderTrendC").parentElement.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:180px;color:#94a3b8;font-size:13px">Gender trend data not available</div>`;
+  }
+}
+
+/* ── BENCHMARK ── */
+function renderBench(row, a) {
+  const labels=[], data=[], colors=[];
+  if (a!=null){labels.push("Actual");data.push(a);colors.push("#2563eb");}
+  if (row.t!=null){labels.push("Target");data.push(row.t);colors.push("#16a34a");}
+  if (row.i!=null){labels.push("Internal Bench.");data.push(row.i);colors.push("#d97706");}
+  if (row.e1!=null){labels.push("Ext. KFU");data.push(row.e1);colors.push("#db2777");}
+  if (row.e2!=null){labels.push("Ext. KSAHS");data.push(row.e2);colors.push("#7c3aed");}
+  document.getElementById("benchLeg").innerHTML = labels.map((l,i)=>`<span class="leg"><span class="leg-dot" style="background:${colors[i]}"></span>${l}: <strong>${data[i]??'—'}</strong></span>`).join("");
+  destroyChart("bench");
+  const allV=data.filter(v=>v!=null);
+  const mn=allV.length?Math.min(...allV)*.9:0,mx=allV.length?Math.max(...allV)*1.07:10;
+  charts["bench"] = new Chart(document.getElementById("benchC"),{
+    type:"bar",data:{labels,datasets:[{data,backgroundColor:colors,borderRadius:6,barThickness:40}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",
+      plugins:{legend:{display:false},
+        datalabels:{anchor:"end",align:"end",color:(context)=>colors[context.dataIndex]||"#64748b",font:{size:12,weight:"600"},formatter:(v)=>v!=null?v:''}},
+      scales:{x:{min:mn,max:mx*1.08,grid:{color:"rgba(0,0,0,.04)"},ticks:{font:{size:11},color:"#64748b"}},
+              y:{grid:{display:false},ticks:{font:{size:11},color:"#64748b"}}}}
+  });
+}
+
+/* ── INSIGHTS ── */
+function renderInsights(row, a, s) {
+  const prev = getPrev(row.c, selGender);
+  const msgs = [];
+  if (a==null) { msgs.push({cls:"ins-neutral",txt:"No actual data is available for the selected gender view. Switch to Combined to see results."}); }
+  else {
+    if (row.t!=null) {
+      const diff = Math.abs(a-row.t).toFixed(1);
+      if (s==="achieved") msgs.push({cls:"ins-positive",txt:`Performance of <strong>${a}</strong> meets or exceeds the target of <strong>${row.t}</strong>. This is a strong result suitable for positive mention in accreditation reports.`});
+      else if (s==="borderline") msgs.push({cls:"ins-warning",txt:`Performance of <strong>${a}</strong> is within 3% of the target (<strong>${row.t}</strong>). The gap of ${diff} points requires monitoring and a corrective action plan.`});
+      else msgs.push({cls:"ins-negative",txt:`Performance of <strong>${a}</strong> is below the target of <strong>${row.t}</strong> by <strong>${diff}</strong> points. A formal improvement plan with measurable milestones is recommended.`});
+    }
+    if (prev!=null) {
+      const d = (a-prev); const abs=Math.abs(d).toFixed(1);
+      const good = isRev(row.c)?(d<=0):(d>=0);
+      msgs.push({cls: good?"ins-positive":"ins-warning", txt:`Year-on-year change: <strong>${d>=0?"↑":"↓"} ${abs}</strong> from prior year value of <strong>${prev}</strong> — ${good?"a positive trajectory.":"performance has declined and needs attention."}`});
+    }
+    if (row.m!=null && row.f!=null) {
+      const gap = Math.abs(row.f-row.m).toFixed(1);
+      const higher = row.f>row.m?"Female":"Male";
+      msgs.push({cls:"ins-info",txt:`Gender analysis: <strong>${higher}</strong> students perform higher by <strong>${gap}</strong> points. ${gap>2?"Consider investigating whether this gap reflects structural or systemic differences.":"The gender gap is within an acceptable range."}`});
+    }
+    if (row.e1!=null) {
+      const beat = isRev(row.c)?(a<=row.e1):(a>=row.e1);
+      msgs.push({cls:beat?"ins-positive":"ins-warning",txt:`Against the KFU external benchmark of <strong>${row.e1}</strong>, this program is <strong>${beat?"performing above the peer institution benchmark":"below the KFU peer benchmark"}</strong>.`});
+    }
+    if (row.i!=null) {
+      const beat = isRev(row.c)?(a<=row.i):(a>=row.i);
+      msgs.push({cls:beat?"ins-positive":"ins-warning",txt:`Against the internal benchmark of <strong>${row.i}</strong>, performance is <strong>${beat?"on track with the internal standard":"below the internal standard — review internal targets"}</strong>.`});
+    }
+  }
+  document.getElementById("insightBox").innerHTML = msgs.map(m=>`<div class="insight-item ${m.cls}">${m.txt}</div>`).join("");
+}
+
+/* ═══════════════════ GENDER PAGE ═══════════════════ */
+function renderGenderPage() {
+  const rows = getYearRows(selYear).filter(r=>r.m!=null||r.f!=null);
+  const labels = rows.map(r=>r.c);
+  const mData = rows.map(r=>r.m);
+  const fData = rows.map(r=>r.f);
+  const tData = rows.map(r=>r.t);
+  const wrap = document.getElementById("genderAllWrap");
+  const h = Math.max(420, rows.length*52+80);
+  wrap.style.height = h+"px";
+  destroyChart("genderAll");
+  charts["genderAll"] = new Chart(document.getElementById("genderAllC"),{
+    type:"bar",
+    data:{labels,datasets:[
+      {label:"Male",data:mData,backgroundColor:"rgba(37,99,235,.75)",borderRadius:4,barThickness:12},
+      {label:"Female",data:fData,backgroundColor:"rgba(219,39,119,.75)",borderRadius:4,barThickness:12},
+      {label:"Target",data:tData,backgroundColor:"rgba(148,163,184,.35)",borderRadius:4,barThickness:12,borderWidth:1,borderColor:"#64748b"},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",
+      plugins:{
+        legend:{display:true,position:"top",labels:{font:{size:12},usePointStyle:true,pointStyle:"rect"}},
+        tooltip:{callbacks:{label:c=>c.dataset.label+": "+(c.raw??'N/A')}},
+        datalabels:{anchor:"end",align:"end",font:{size:10,weight:"600"},
+          color:(context)=>context.datasetIndex===0?"#1d4ed8":context.datasetIndex===1?"#be185d":"#475569",
+          formatter:(v)=>v!=null?v:''}
+      },
+      scales:{x:{grid:{color:"rgba(0,0,0,.04)"},ticks:{font:{size:11},color:"#64748b"}},
+              y:{grid:{display:false},ticks:{font:{size:11},color:"#334155"}}}}
+  });
+
+  // Gap cards
+  document.getElementById("genderGapCards").innerHTML = rows.map(r=>{
+    if (r.m==null||r.f==null) return "";
+    const gap = (r.f - r.m);
+    const absGap = Math.abs(gap).toFixed(1);
+    const higher = gap>0?"Female":"gap=0"?"Equal":"Male";
+    const gapColor = Math.abs(gap)>3?"#dc2626":Math.abs(gap)>1?"#d97706":"#16a34a";
+    const s = getStatus(r.c, r.x, r.t);
+    return `<div class="card" style="padding:14px;cursor:pointer" onclick="openKPI('${r.c}')">
+      <div style="font-size:11px;font-weight:700;color:var(--slate);margin-bottom:4px">${r.c}</div>
+      <div style="font-size:12px;color:#334155;margin-bottom:10px;line-height:1.4">${r.n}</div>
+      <div style="display:flex;gap:10px;margin-bottom:8px">
+        <div style="flex:1;background:#dbeafe;border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:10px;color:#1e40af;font-weight:600;margin-bottom:2px">♂ MALE</div>
+          <div style="font-size:18px;font-weight:500;color:#1e40af">${r.m}</div>
+        </div>
+        <div style="flex:1;background:#fce7f3;border-radius:8px;padding:8px;text-align:center">
+          <div style="font-size:10px;color:#9d174d;font-weight:600;margin-bottom:2px">♀ FEMALE</div>
+          <div style="font-size:18px;font-weight:500;color:#9d174d">${r.f}</div>
+        </div>
+      </div>
+      <div style="font-size:12px;padding:6px 10px;border-radius:8px;background:var(--cream);display:flex;justify-content:space-between;align-items:center">
+        <span style="color:var(--slate)">Gender gap</span>
+        <strong style="color:${gapColor}">${gap>0?"Female higher":gap<0?"Male higher":"Equal"} · ${absGap} pts</strong>
+      </div>
+    </div>`;
+  }).filter(Boolean).join("");
+}
+
+/* ═══════════════════ STRATEGY ═══════════════════ */
+function renderStrategy() {
+  const rows = getYearRows(selYear);
+  const scores = DOMAINS.map(d=>{
+    const kpis = rows.filter(r=>d.codes.includes(r.c));
+    let ach=0,tot=0;
+    kpis.forEach(r=>{const a=getA(r,selGender);if(a!=null&&r.t!=null){tot++;if(getStatus(r.c,a,r.t)==="achieved")ach++;}});
+    return tot ? Math.round(ach/tot*100) : 0;
+  });
+  destroyChart("radar");
+  charts["radar"] = new Chart(document.getElementById("radarC"),{
+    type:"radar",
+    data:{labels:DOMAINS.map(d=>d.label),datasets:[
+      {label:"Achievement %",data:scores,backgroundColor:"rgba(37,99,235,.1)",borderColor:"#2563eb",pointBackgroundColor:"#2563eb",pointRadius:6,borderWidth:2},
+      {label:"100% Target",data:DOMAINS.map(()=>100),backgroundColor:"rgba(220,38,38,.03)",borderColor:"rgba(220,38,38,.2)",borderDash:[5,4],pointRadius:0,borderWidth:1}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:"bottom",labels:{font:{size:11}}},datalabels:{display:false}},
+      scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:10},color:"#94a3b8",backdropColor:"transparent"},
+                   grid:{color:"rgba(0,0,0,.06)"},pointLabels:{font:{size:12,weight:"500"},color:"#334155"}}}}
+  });
+
+  document.getElementById("domainCards").innerHTML = DOMAINS.map((d,i)=>{
+    const kpis=rows.filter(r=>d.codes.includes(r.c));
+    let ach=0,bord=0,fail=0;
+    kpis.forEach(r=>{const s=getStatus(r.c,getA(r,selGender),r.t);if(s==="achieved")ach++;else if(s==="borderline")bord++;else if(s==="not-achieved")fail++;});
+    const col=scores[i]>=80?"#16a34a":scores[i]>=60?"#d97706":"#dc2626";
+    return `<div class="dom-card">
+      <div class="dom-icon" style="background:${d.bg}">${d.icon}</div>
+      <div class="dom-info">
+        <div class="dom-name">${d.label}</div>
+        <div class="dom-counts">${ach} achieved${bord?` · ${bord} borderline`:""}${fail?` · ${fail} not achieved`:""}</div>
+        <div class="dom-bar-wrap"><div class="dom-bar" style="width:${scores[i]}%;background:${col}"></div></div>
+      </div>
+      <div class="dom-pct" style="color:${col}">${scores[i]}%</div>
+    </div>`;
+  }).join("");
+}
+
+/* ═══════════════════ ATTENTION ═══════════════════ */
+function renderAttention() {
+  const rows = getYearRows(selYear);
+  const flagged = rows.filter(r=>{
+    const s=getStatus(r.c,getA(r,selGender),r.t);
+    return s==="not-achieved"||s==="borderline";
+  }).sort((a,b)=>{
+    const sa=getStatus(a.c,getA(a,selGender),a.t),sb=getStatus(b.c,getA(b,selGender),b.t);
+    return (sa==="not-achieved"?0:1)-(sb==="not-achieved"?0:1);
+  });
+
+  if (!flagged.length) {
+    document.getElementById("attnGrid").innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="emoji">🎯</div>
+      <h3>All KPIs on Target</h3>
+      <p>All measured KPIs are achieving their targets for ${selYear}.</p>
+    </div>`;
+    return;
+  }
+
+  document.getElementById("attnGrid").innerHTML = flagged.map(r=>{
+    const a=getA(r,selGender), s=getStatus(r.c,a,r.t);
+    const prev=getPrev(r.c,selGender);
+    const gap=a!=null&&r.t!=null?Math.abs(a-r.t).toFixed(1):"—";
+    const trend=a!=null&&prev!=null?(a>prev?`↑ improved from ${prev}`:a<prev?`↓ declined from ${prev}`:"→ unchanged from "+prev):"No prior year data";
+    const col=SC2(s);
+    return `<div class="attn-card" style="border-left-color:${col}" onclick="openKPI('${r.c}')">
+      <div class="attn-head">
+        <div><div class="attn-name">${r.n}</div><div class="attn-code">${r.c}</div></div>
+        <span class="status-pill ${PC(s)}" style="font-size:11px">${ST(s)}</span>
+      </div>
+      <div class="attn-metrics">
+        <div class="am"><div class="am-lbl">Actual</div><div class="am-val" style="color:${col}">${a??'—'}</div></div>
+        <div class="am"><div class="am-lbl">Target</div><div class="am-val">${r.t??'—'}</div></div>
+        ${r.i!=null?`<div class="am"><div class="am-lbl">Internal Bench.</div><div class="am-val">${r.i}</div></div>`:""}
+        ${r.m!=null&&r.f!=null?`<div class="am"><div class="am-lbl">♂ / ♀</div><div class="am-val" style="font-size:13px"><span style="color:#2563eb">${r.m}</span> / <span style="color:#db2777">${r.f}</span></div></div>`:""}
+      </div>
+      <div class="attn-gap">Gap to target: <strong style="color:${col}">${gap}</strong> · ${trend}</div>
+      <div class="attn-footer">🔍 Click to open full analysis</div>
+    </div>`;
+  }).join("");
+}
+
+/* ═══════════════════ FULL RENDER ═══════════════════ */
+function fullRender() {
+  renderSummary();
+  renderSideKPIs();
+  renderOverview();
+  populateSelect();
+  const active = document.querySelector(".page.active");
+  if (active) {
+    const id = active.id.replace("pg-","");
+    if (id==="detail") renderDetail();
+    if (id==="strategy") renderStrategy();
+    if (id==="attention") renderAttention();
+    if (id==="gender") renderGenderPage();
+  }
+}
+
+/* BOOT */
+fullRender();
+</script>
+</body>
+</html>
